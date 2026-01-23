@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.XR.ARFoundation;
@@ -9,27 +8,27 @@ using UnityEngine.XR.ARSubsystems;
 public class ExperienceManager : MonoBehaviour
 {
     [SerializeField] private Button addChickenButton;
-    [SerializeField] private  ARRaycastManager arRaycastManager;
+    [SerializeField] private ARRaycastManager arRaycastManager;
     [SerializeField] private GameObject chickenPrefab;
     
     private bool _canAddChicken;
     private GameObject _chickenPreview;
-    private Vector3 _detectedPosition;
+    private Vector3 _detectedPosition = new Vector3();
     private Quaternion _detectedRotation = Quaternion.identity;
-    private ARTrackable _currentTrackable;
+    private ARTrackable _currentTrackable = null;
 
     private void Start()
     {
         InputHandler.OnTap += SpawnChicken;
-        _chickenPreview = Instantiate(chickenPrefab); //chicken preview
+        _chickenPreview = Instantiate(chickenPrefab); // Chicken preview
         SetCanAddChicken(true);
     }
 
     private void SpawnChicken()
     {
-        if(!_canAddChicken) return;
-        
-        var chicken = Instantiate(chickenPrefab); // Actual Spawned chicken
+        if (!_canAddChicken) return;
+
+        var chicken = Instantiate(chickenPrefab); // Actual spawned chicken
         chicken.GetComponent<Chicken>().PlaceChicken(_currentTrackable);
         chicken.transform.position = _detectedPosition;
         chicken.transform.rotation = _detectedRotation;
@@ -55,6 +54,8 @@ public class ExperienceManager : MonoBehaviour
             _chickenPreview.transform.rotation = _detectedRotation;
             _currentTrackable = hits[0].trackable;
         }
+        
+        
     }
 
     private void OnDestroy()
@@ -62,11 +63,10 @@ public class ExperienceManager : MonoBehaviour
         InputHandler.OnTap -= SpawnChicken;
     }
 
-
     public void SetCanAddChicken(bool canAddChicken)
     {
         _canAddChicken = canAddChicken;
-        addChickenButton.gameObject.SetActive(_canAddChicken);
-        _chickenPreview.gameObject.SetActive(canAddChicken); 
+        addChickenButton.gameObject.SetActive(!_canAddChicken); // show after spawn
+        _chickenPreview.gameObject.SetActive(canAddChicken); // show when waiting for tap
     }
 }
